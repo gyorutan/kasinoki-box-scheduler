@@ -31,9 +31,6 @@ export const POST = async (req: RequestEvent) => {
 				time: selectedTime
 			}
 		});
-
-		console.log('새로운 예약 :', creadtedReservation);
-
 		return Response.json({ success: true, creadtedReservation });
 	} catch (error) {
 		console.log(error);

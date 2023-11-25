@@ -19,40 +19,45 @@
 
 	let password: string = '';
 
+	let isLoading: boolean = false;
+
 	const getReservations = async () => {
 		const response = await fetch('/api/reserve');
 		const resultData = await response.json();
-		console.log(resultData);
 		reservations = resultData.reservations;
-		console.log(reservations);
 	};
 
 	onMount(async () => {
 		getReservations();
 		threeWeeks = getThreeWeeks();
-
-		console.log(threeWeeks);
 	});
 
 	const handleDelete = async () => {
-		const response = await fetch(`/api/reserve/${reservationId}`, {
-			method: 'DELETE',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(password)
-		});
-		const resultData = await response.json();
-		console.log(resultData);
+		isLoading = true;
+		try {
+			const response = await fetch(`/api/reserve/${reservationId}`, {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(password)
+			});
 
-		if (resultData.success) {
-			alert('削除しました');
-			openModal = false;
-			password = '';
-			getReservations();
-		} else {
-			alert('パスワードが一致しません');
-			password = '';
+			const resultData = await response.json();
+
+			if (resultData.success) {
+				alert('削除しました');
+				openModal = false;
+				password = '';
+				getReservations();
+			} else {
+				alert('パスワードが一致しません');
+				password = '';
+			}
+
+			isLoading = false;
+		} catch (error) {
+			console.log(error);
 		}
 	};
 </script>
@@ -141,8 +146,13 @@
 							on:click={handleDelete}
 							type="button"
 							class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
-							>削除</button
 						>
+							{#if isLoading}
+								削除中。。。
+							{:else}
+								削除
+							{/if}
+						</button>
 						<button
 							on:click={() => {
 								if (openModal) {

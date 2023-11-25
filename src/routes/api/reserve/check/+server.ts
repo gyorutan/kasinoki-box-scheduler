@@ -6,8 +6,6 @@ export const POST = async (req: RequestEvent) => {
 	try {
 		const formattedDate = await req.request.json();
 
-		console.log('BE 선택된 날짜 :' ,formattedDate);
-
 		const checkedDate = await prisma.reservation.findMany({
 			where: {
 				date: {
@@ -36,18 +34,12 @@ export const POST = async (req: RequestEvent) => {
 			(time: string) => !reservedTime.includes(time)
 		);
 
-		console.log('BE 평일 예약 가능 시간 :', availableWeekDayTimes);
-
 		// 주말 예약된 시간 제외
 		const availableWeekEndTimes = weekEndTimes.filter(
 			(time: string) => !reservedTime.includes(time)
 		);
 
-		console.log('BE 주말 예약 가능 시간 :', availableWeekEndTimes);
-
 		const availableTimes = { availableWeekDayTimes, availableWeekEndTimes };
-
-		console.log('BE 종합 예약 가능 시간 :', availableTimes);
 
 		return Response.json({ success: true, availableTimes });
 	} catch (error) {

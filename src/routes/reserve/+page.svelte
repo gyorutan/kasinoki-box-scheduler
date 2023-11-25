@@ -28,6 +28,7 @@
 		screenNumber: number;
 		availableWeekDayTimes: string[];
 		availableWeekEndTimes: string[];
+		isLoading: boolean;
 	}
 
 	// 필요 정보
@@ -39,7 +40,8 @@
 		selectedTypesDate: null,
 		screenNumber: 1,
 		availableWeekDayTimes: [],
-		availableWeekEndTimes: []
+		availableWeekEndTimes: [],
+		isLoading: false
 	};
 
 	// 날짜
@@ -63,8 +65,6 @@
 	// 시간대
 	const handleTime = (time: string) => {
 		reservationData.selectedTime = time;
-
-		console.log('FE 선택된 시간 :', reservationData.selectedTime);
 	};
 
 	// 최소 선택 날짜
@@ -74,8 +74,6 @@
 		const currentDate = requiredData.today.getDate();
 
 		requiredData.minDate = `${currentYear}-${currentMonth}-${currentDate}`;
-
-		console.log('minDate :', requiredData.minDate);
 	};
 
 	// 최대 선택 날짜
@@ -89,8 +87,6 @@
 		const afterThreeWeeksDate = afterThreeWeeks.getDate();
 
 		requiredData.maxDate = `${afterThreeWeeksYear}-${afterThreeWeeksMonth}-${afterThreeWeeksDate}`;
-
-		console.log('maxDate :', requiredData.maxDate);
 	};
 
 	// 날짜 초기화
@@ -101,13 +97,11 @@
 	// 다음 버튼
 	const handleNextScreen = () => {
 		requiredData.screenNumber++;
-		console.log(requiredData.screenNumber);
 	};
 
 	// 이전 버튼
 	const handleBeforeScreen = () => {
 		requiredData.screenNumber--;
-		console.log(requiredData.screenNumber);
 	};
 
 	// 예약 중복확인
@@ -123,14 +117,9 @@
 
 			const resultData = await response.json();
 
-			console.log('resultData :', resultData);
-
 			if (resultData.success) {
 				requiredData.availableWeekDayTimes = resultData.availableTimes.availableWeekDayTimes;
 				requiredData.availableWeekEndTimes = resultData.availableTimes.availableWeekEndTimes;
-
-				console.log('FE 평일 예약 가능 시간 :', requiredData.availableWeekDayTimes);
-				console.log('FE 주말 예약 가능 시간 :', requiredData.availableWeekEndTimes);
 			}
 		} catch (error) {
 			console.log(error);
@@ -139,6 +128,7 @@
 
 	// 예약하기
 	const handleSubmit = async () => {
+		requiredData.isLoading = true;
 		try {
 			const response = await fetch('/api/reserve', {
 				method: 'POST',
@@ -150,8 +140,6 @@
 
 			const resultData = await response.json();
 
-			console.log(resultData);
-
 			if (resultData.success) {
 				alert('予約しました！');
 				goto('/');
@@ -159,6 +147,7 @@
 		} catch (error) {
 			console.log(error);
 		}
+		requiredData.isLoading = false;
 	};
 </script>
 
@@ -190,9 +179,6 @@
 							resetDate();
 							getMinDate();
 							getMaxDate();
-
-							// name 값 확인
-							console.log('name :', reservationData.name);
 						}}
 						type="button"
 						class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 px-5 rounded-md"
@@ -255,6 +241,9 @@
 		{:else if requiredData.screenNumber === 3}
 			<div class="flex flex-col justify-center items-center gap-4">
 				<p class="font-bold text-lg">{reservationData.selectedDate}の予約可能時間帯</p>
+				{#if requiredData.availableWeekDayTimes.length === 0 || requiredData.availableWeekEndTimes.length === 0}
+					<p class="font-bold text-lg text-center text-red-500">予約可能な時間がありません!</p>
+				{/if}
 				{#if requiredData.selectedTypesDate !== null && requiredData.selectedTypesDate.getDay() !== 0 && requiredData.selectedTypesDate.getDay() !== 6}
 					<div class="w-full grid grid-rows-3 grid-cols-2 gap-2">
 						{#each requiredData.availableWeekDayTimes as time}
@@ -287,9 +276,6 @@
 						{/each}
 					</div>
 				{/if}
-				<!-- {#if requiredData.availableWeekDayTimes.length === 0 || requiredData.availableWeekEndTimes.length === 0}
-						<p class="font-bold text-lg text-center text-red-500">予約可能な時間がありません!</p>
-					{/if} -->
 				<div class="flex gap-3 w-full">
 					<button
 						on:click={() => {
@@ -360,15 +346,15 @@
 			<div class="flex flex-col justify-center items-center gap-4 w-full">
 				<p class="text-2xl font-black">予約内容確認</p>
 				<div class="flex flex-col gap-3 w-full">
-					<div class="flex flex-col gap-1 w-full border border-slate-400 rounded-md py-2 px-3">
+					<div class="flex flex-col gap-1 w-full border border-slate-400 rounded-md py-3 px-4">
 						<p class="font-medium text-sm">名前 / バンド名</p>
 						<p class="font-bold text-xl text-blue-500">{reservationData.name}</p>
 					</div>
-					<div class="flex flex-col gap-1 w-full border border-slate-400 rounded-md py-2 px-3">
+					<div class="flex flex-col gap-1 w-full border border-slate-400 rounded-md py-3 px-4">
 						<p class="font-medium text-sm">日付</p>
 						<p class="font-bold text-xl text-blue-500">{reservationData.selectedDate}</p>
 					</div>
-					<div class="flex flex-col gap-1 w-full border border-slate-400 rounded-md py-2 px-3">
+					<div class="flex flex-col gap-1 w-full border border-slate-400 rounded-md py-3 px-4">
 						<p class="font-medium text-sm">時間帯</p>
 						<p class="font-bold text-xl text-blue-500">{reservationData.selectedTime}</p>
 					</div>
@@ -378,7 +364,11 @@
 						type="submit"
 						class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 px-5 rounded-md"
 					>
-						提出
+						{#if requiredData.isLoading}
+							提出中。。。
+						{:else}
+							提出
+						{/if}
 					</button>
 					<button
 						on:click={() => {

@@ -9,10 +9,6 @@ export const DELETE = async (req: RequestEvent) => {
 
 		const password = await req.request.json();
 
-		console.log(password);
-
-		console.log(reservationId);
-
 		const reservation = await prisma.reservation.findUnique({
 			where: {
 				id: reservationId
@@ -41,8 +37,6 @@ export const DELETE = async (req: RequestEvent) => {
 				}
 			});
 		}
-
-		console.log(reservation);
 
 		return Response.json({ success: true });
 	} catch (error) {
