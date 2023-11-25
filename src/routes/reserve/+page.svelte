@@ -197,7 +197,7 @@
 					<p class="text-sm">✅ 2時間以上予約する場合は、1時間ずつ予約してください！</p>
 					<p class="text-sm">✅ 他のバンドのために、過度な予約はご遠慮ください！</p>
 				</div>
-				<div class="w-full">
+				<div class="w-full flex flex-col">
 					<label for="name" class="ml-1 font-bold text-black text-base">
 						日付指定
 					</label>
@@ -239,7 +239,7 @@
 			</div>
 			<!-- 예약 작성 3번 화면 -->
 		{:else if requiredData.screenNumber === 3}
-			<div class="flex flex-col justify-center items-center gap-4">
+			<div class="flex flex-col justify-center items-center gap-14">
 				<p class="font-bold text-lg">{reservationData.selectedDate}の予約可能時間帯</p>
 				{#if requiredData.availableWeekDayTimes.length === 0 || requiredData.availableWeekEndTimes.length === 0}
 					<p class="font-bold text-lg text-center text-red-500">予約可能な時間がありません!</p>
@@ -254,7 +254,7 @@
 								type="button"
 								class={reservationData.selectedTime === time
 									? 'w-full font-medium py-2 rounded-md text-sm transition bg-blue-500 text-white shadow-sm'
-									: 'w-full font-medium py-2 rounded-md text-sm transition hover:bg-blue-500 focus:bg-blue-500 focus:text-white text-black bg-gray-200 hover:text-white shadow-sm'}
+									: 'w-full font-medium py-2 rounded-md text-sm transition hover:bg-blue-500 text-black bg-gray-200 hover:text-white shadow-sm'}
 								>{time}</button
 							>
 						{/each}
@@ -270,7 +270,7 @@
 								type="button"
 								class={reservationData.selectedTime === time
 									? 'w-full font-medium py-2 rounded-md text-sm transition bg-blue-500 text-white shadow-sm'
-									: 'w-full font-medium py-2 rounded-md text-sm transition hover:bg-blue-500 focus:bg-blue-500 focus:text-white text-black bg-gray-200 hover:text-white shadow-sm'}
+									: 'w-full font-medium py-2 rounded-md text-sm transition hover:bg-blue-500 text-black bg-gray-200 hover:text-white shadow-sm'}
 								>{time}</button
 							>
 						{/each}
