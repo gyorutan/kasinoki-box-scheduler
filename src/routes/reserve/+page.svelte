@@ -197,8 +197,8 @@
 					<p class="text-sm">✅ 2時間以上予約する場合は、1時間ずつ予約してください！</p>
 					<p class="text-sm">✅ 他のバンドのために、過度な予約はご遠慮ください！</p>
 				</div>
-				<div class="relative w-full">
-					<label for="name" class="absolute left-3 top-2 font-base text-black text-sm">
+				<div class="w-full">
+					<label for="name" class="ml-1 font-bold text-black text-base">
 						日付指定
 					</label>
 					<input
@@ -209,7 +209,7 @@
 						type="date"
 						min={requiredData.minDate}
 						max={requiredData.maxDate}
-						class="hover:border-slate-400 transition rounded-md bg-white border border-slate-300 focus:border-slate-900 w-full outline-none pt-9 pb-3 px-3 text-base font-medium"
+						class="hover:border-slate-400 transition rounded-md bg-white border border-slate-300 focus:border-slate-900 w-full outline-none mt-1 p-3 text-base font-medium"
 					/>
 				</div>
 				<div class="flex gap-3 w-full">
