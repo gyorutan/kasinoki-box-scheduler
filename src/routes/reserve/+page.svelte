@@ -150,10 +150,14 @@
 			const resultData = await response.json();
 
 			if (resultData.success && requiredData.oneMore) {
-				alert('予約しました！');
+				requiredData.isLoading = false;
+				requiredData.oneMore = false;
+				return;
 			} else if (resultData.success) {
 				alert('予約しました！');
 				goto('/');
+			} else {
+				alert('予約に失敗しました！');
 			}
 		} catch (error) {
 			console.log(error);
@@ -185,13 +189,12 @@
 		<!-- 예약 작성 1번 화면 -->
 		{#if requiredData.screenNumber === 1}
 			<div class="flex flex-col justify-center items-center gap-4 p-5">
+				<div class="">
+					<p class="text-base text-red-500">⚠ 予約は一日最大2時間までです！</p>
+				</div>
 				<span class="text-lg font-black">
 					次のライブは <span class="text-blue-600">「12月 24日」</span>です。
 				</span>
-				<div class="w-full">
-					<p class="text-xs">✅ 2時間以上予約する場合は、1時間ずつ予約してください！</p>
-					<p class="text-xs">✅ 他のバンドのために、過度な予約はご遠慮ください！</p>
-				</div>
 				<div class="flex gap-3">
 					<div class="relative w-full">
 						<label for="name" class="absolute left-3 top-2 font-base text-black text-sm">
@@ -344,6 +347,17 @@
 							提出
 						{/if}
 					</button>
+
+					<button
+						on:click={() => {
+							oneMoreReservation();
+						}}
+						type="button"
+						class="w-full bg-green-600 hover:bg-green-500 text-white py-2.5 px-5 rounded-md"
+					>
+						提出してもう一度予約する
+					</button>
+					<div class="border border-slate-400"></div>
 					<button
 						on:click={() => {
 							handleBeforeScreen();
@@ -352,15 +366,6 @@
 						class="w-full bg-red-600 hover:bg-red-500 text-white py-2.5 px-5 rounded-md"
 					>
 						前へ
-					</button>
-					<button
-						on:click={() => {
-							oneMoreReservation();
-						}}
-						type="button"
-						class="w-full bg-yellow-500 hover:bg-yellow-400 text-white py-2.5 px-5 rounded-md"
-					>
-						提出して、もう一度予約する
 					</button>
 				</div>
 			</div>
