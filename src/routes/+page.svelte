@@ -33,6 +33,10 @@
 	});
 
 	const handleDelete = async () => {
+		if (!password) {
+			alert('パスワードを入力してください');
+			return;
+		}
 		isLoading = true;
 		try {
 			const response = await fetch(`/api/reserve/${reservationId}`, {

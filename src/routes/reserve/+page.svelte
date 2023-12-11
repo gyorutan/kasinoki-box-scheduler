@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { dateFormatting } from '$lib/dateFormatting';
 	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
 
 	// 예약 정보 타입
 	interface reservationData {
@@ -29,6 +30,7 @@
 		availableWeekDayTimes: string[];
 		availableWeekEndTimes: string[];
 		isLoading: boolean;
+		oneMore: boolean;
 	}
 
 	// 필요 정보
@@ -41,7 +43,8 @@
 		screenNumber: 1,
 		availableWeekDayTimes: [],
 		availableWeekEndTimes: [],
-		isLoading: false
+		isLoading: false,
+		oneMore: false
 	};
 
 	// 날짜
@@ -86,7 +89,13 @@
 		const afterThreeWeeksMonth = afterThreeWeeks.getMonth() + 1;
 		const afterThreeWeeksDate = afterThreeWeeks.getDate();
 
-		requiredData.maxDate = `${afterThreeWeeksYear}-${afterThreeWeeksMonth}-${afterThreeWeeksDate}`;
+		if (afterThreeWeeksMonth > 0 && 10 > afterThreeWeeksMonth) {
+			requiredData.maxDate = `${afterThreeWeeksYear}-0${afterThreeWeeksMonth}-0${afterThreeWeeksDate}`;
+		} else {
+			requiredData.maxDate = `${afterThreeWeeksYear}-${afterThreeWeeksMonth}-${afterThreeWeeksDate}`;
+		}
+
+		console.log(requiredData.maxDate);
 	};
 
 	// 날짜 초기화
@@ -140,7 +149,9 @@
 
 			const resultData = await response.json();
 
-			if (resultData.success) {
+			if (resultData.success && requiredData.oneMore) {
+				alert('予約しました！');
+			} else if (resultData.success) {
 				alert('予約しました！');
 				goto('/');
 			}
@@ -148,24 +159,76 @@
 			console.log(error);
 		}
 		requiredData.isLoading = false;
+		requiredData.oneMore = false;
 	};
+
+	console.log(reservationData.selectedDate);
+
+	const oneMoreReservation = () => {
+		requiredData.oneMore = true;
+		handleSubmit();
+		reservationData.password = '';
+		requiredData.selectedStringDate = '';
+		reservationData.selectedTime = '';
+		requiredData.screenNumber = 1;
+	};
+
+	onMount(() => {
+		resetDate();
+		getMinDate();
+		getMaxDate();
+	});
 </script>
 
 <div class="h-[88vh] flex flex-col gap-10 justify-center items-center">
 	<form on:submit|preventDefault={handleSubmit} class="flex flex-col">
 		<!-- 예약 작성 1번 화면 -->
 		{#if requiredData.screenNumber === 1}
-			<div class="flex flex-col justify-center items-center gap-4">
-				<div class="relative w-full">
-					<label for="name" class="absolute left-3 top-2 font-base text-black text-sm">
-						名前 / バンド名
-					</label>
+			<div class="flex flex-col justify-center items-center gap-4 p-5">
+				<span class="text-lg font-black">
+					次のライブは <span class="text-blue-600">「12月 24日」</span>です。
+				</span>
+				<div class="w-full">
+					<p class="text-xs">✅ 2時間以上予約する場合は、1時間ずつ予約してください！</p>
+					<p class="text-xs">✅ 他のバンドのために、過度な予約はご遠慮ください！</p>
+				</div>
+				<div class="flex gap-3">
+					<div class="relative w-full">
+						<label for="name" class="absolute left-3 top-2 font-base text-black text-sm">
+							名前 / バンド名
+						</label>
+						<input
+							bind:value={reservationData.name}
+							name="name"
+							required
+							type="text"
+							class="shadow hover:border-slate-400 rounded-md transition bg-white border border-slate-300 focus:border-blue-600 w-full outline-none pt-9 pb-3 px-3 text-lg font-bold"
+						/>
+					</div>
+					<div class="relative w-full">
+						<label for="password" class="absolute left-3 top-2 font-base text-black text-sm">
+							パスワード設定
+						</label>
+						<input
+							bind:value={reservationData.password}
+							name="password"
+							required
+							type="password"
+							class="shadow tracking-[5px] hover:border-slate-400 rounded-md transition bg-white border border-slate-300 focus:border-blue-600 w-full outline-none pt-9 pb-3 px-3 text-lg font-bold"
+						/>
+					</div>
+				</div>
+				<div class="w-full flex flex-col">
+					<label for="name" class="ml-1 font-bold text-black text-base"> 日付指定 </label>
 					<input
-						bind:value={reservationData.name}
-						name="name"
+						bind:value={requiredData.selectedStringDate}
+						on:change={handleDate}
+						name="date"
 						required
-						type="text"
-						class="hover:border-slate-400 rounded-md transition bg-white border border-slate-300 focus:border-blue-600 w-full outline-none pt-9 pb-3 px-3 text-lg font-bold"
+						type="date"
+						min={requiredData.minDate}
+						max={requiredData.maxDate}
+						class="shadow hover:border-slate-400 transition rounded-md bg-white border border-slate-300 focus:border-slate-900 w-full outline-none mt-1 p-3 text-base font-medium"
 					/>
 				</div>
 				<div class="w-full">
@@ -174,11 +237,11 @@
 							if (reservationData.name === '') {
 								alert('名前 / バンド名を入力してください！');
 								return;
+							} else if (reservationData.password === '') {
+								alert('パスワードを入力してください！');
+								return;
 							}
 							handleNextScreen();
-							resetDate();
-							getMinDate();
-							getMaxDate();
 						}}
 						type="button"
 						class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 px-5 rounded-md"
@@ -189,57 +252,7 @@
 			</div>
 			<!-- 예약 작성 2번 화면 -->
 		{:else if requiredData.screenNumber === 2}
-			<div class="flex flex-col justify-center items-center gap-4">
-				<span class="text-xl font-black">
-					次のライブは <span class="text-blue-600">「12月 3日」</span>です。
-				</span>
-				<div class="">
-					<p class="text-sm">✅ 2時間以上予約する場合は、1時間ずつ予約してください！</p>
-					<p class="text-sm">✅ 他のバンドのために、過度な予約はご遠慮ください！</p>
-				</div>
-				<div class="w-full flex flex-col">
-					<label for="name" class="ml-1 font-bold text-black text-base">
-						日付指定
-					</label>
-					<input
-						bind:value={requiredData.selectedStringDate}
-						on:change={handleDate}
-						name="date"
-						required
-						type="date"
-						min={requiredData.minDate}
-						max={requiredData.maxDate}
-						class="hover:border-slate-400 transition rounded-md bg-white border border-slate-300 focus:border-slate-900 w-full outline-none mt-1 p-3 text-base font-medium"
-					/>
-				</div>
-				<div class="flex gap-3 w-full">
-					<button
-						on:click={() => {
-							handleBeforeScreen();
-						}}
-						type="button"
-						class="w-full bg-red-600 hover:bg-red-500 text-white py-2.5 px-5 rounded-md"
-					>
-						前へ
-					</button>
-					<button
-						on:click={() => {
-							if (reservationData.selectedDate === null) {
-								alert('日付を指定してください！');
-								return;
-							}
-							handleNextScreen();
-						}}
-						type="button"
-						class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 px-5 rounded-md"
-					>
-						次へ
-					</button>
-				</div>
-			</div>
-			<!-- 예약 작성 3번 화면 -->
-		{:else if requiredData.screenNumber === 3}
-			<div class="flex flex-col justify-center items-center gap-14">
+			<div class="flex flex-col justify-center items-center gap-5">
 				<p class="font-bold text-lg">{reservationData.selectedDate}の予約可能時間帯</p>
 				{#if requiredData.availableWeekDayTimes.length === 0 || requiredData.availableWeekEndTimes.length === 0}
 					<p class="font-bold text-lg text-center text-red-500">予約可能な時間がありません!</p>
@@ -301,48 +314,9 @@
 					</button>
 				</div>
 			</div>
+
 			<!-- 예약 작성 4번 화면 -->
-		{:else if requiredData.screenNumber === 4}
-			<div class="flex flex-col justify-center items-center gap-4">
-				<div class="relative w-full">
-					<label for="password" class="absolute left-3 top-2 font-base text-black text-sm">
-						パスワード
-					</label>
-					<input
-						bind:value={reservationData.password}
-						name="password"
-						required
-						type="password"
-						class="tracking-[5px] hover:border-slate-400 rounded-md transition bg-white border border-slate-300 focus:border-blue-600 w-full outline-none pt-9 pb-3 px-3 text-lg font-bold"
-					/>
-				</div>
-				<div class="flex gap-3 w-full">
-					<button
-						on:click={() => {
-							handleBeforeScreen();
-						}}
-						type="button"
-						class="w-full bg-red-600 hover:bg-red-500 text-white py-2.5 px-5 rounded-md"
-					>
-						前へ
-					</button>
-					<button
-						on:click={() => {
-							if (reservationData.password === '') {
-								alert('パスワードを入力してください！');
-								return;
-							}
-							handleNextScreen();
-						}}
-						type="button"
-						class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 px-5 rounded-md"
-					>
-						次へ
-					</button>
-				</div>
-			</div>
-			<!-- 예약 작성 5번 화면 -->
-		{:else if requiredData.screenNumber === 5}
+		{:else if requiredData.screenNumber === 3}
 			<div class="flex flex-col justify-center items-center gap-4 w-full">
 				<p class="text-2xl font-black">予約内容確認</p>
 				<div class="flex flex-col gap-3 w-full">
@@ -378,6 +352,15 @@
 						class="w-full bg-red-600 hover:bg-red-500 text-white py-2.5 px-5 rounded-md"
 					>
 						前へ
+					</button>
+					<button
+						on:click={() => {
+							oneMoreReservation();
+						}}
+						type="button"
+						class="w-full bg-yellow-500 hover:bg-yellow-400 text-white py-2.5 px-5 rounded-md"
+					>
+						提出して、もう一度予約する
 					</button>
 				</div>
 			</div>
