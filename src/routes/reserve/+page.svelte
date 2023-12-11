@@ -320,20 +320,20 @@
 
 			<!-- 예약 작성 4번 화면 -->
 		{:else if requiredData.screenNumber === 3}
-			<div class="flex flex-col justify-center items-center gap-4 w-full">
-				<p class="text-2xl font-black">予約内容確認</p>
-				<div class="flex flex-col gap-3 w-full">
+			<div class="flex flex-col justify-center items-center gap-3 w-full">
+				<p class="text-xl font-black">予約内容確認</p>
+				<div class="flex flex-col gap-2 w-full">
 					<div class="flex flex-col gap-1 w-full border border-slate-400 rounded-md py-3 px-4">
 						<p class="font-medium text-sm">名前 / バンド名</p>
-						<p class="font-bold text-xl text-blue-500">{reservationData.name}</p>
+						<p class="font-bold text-lg text-blue-500">{reservationData.name}</p>
 					</div>
 					<div class="flex flex-col gap-1 w-full border border-slate-400 rounded-md py-3 px-4">
 						<p class="font-medium text-sm">日付</p>
-						<p class="font-bold text-xl text-blue-500">{reservationData.selectedDate}</p>
+						<p class="font-bold text-lg text-blue-500">{reservationData.selectedDate}</p>
 					</div>
 					<div class="flex flex-col gap-1 w-full border border-slate-400 rounded-md py-3 px-4">
 						<p class="font-medium text-sm">時間帯</p>
-						<p class="font-bold text-xl text-blue-500">{reservationData.selectedTime}</p>
+						<p class="font-bold text-lg text-blue-500">{reservationData.selectedTime}</p>
 					</div>
 				</div>
 				<div class="flex flex-col gap-3 w-full">
