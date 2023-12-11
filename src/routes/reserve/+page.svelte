@@ -221,21 +221,21 @@
 						/>
 					</div>
 				</div>
-				<div class="w-full flex flex-col">
-					<label for="name" class="ml-1 font-bold text-black text-base"> 日付指定 </label>
-					<div class="flex gap-5 items-center">
-						<input
-							bind:value={requiredData.selectedStringDate}
-							on:change={handleDate}
-							name="date"
-							required
-							type="date"
-							min={requiredData.minDate}
-							max={requiredData.maxDate}
-							class="shadow hover:border-slate-400 transition rounded-md bg-white border border-slate-300 focus:border-slate-900 w-full outline-none mt-1 p-3 text-base font-medium"
-						/>
-						<span class="w-full">◀ タッチ!</span>
+				<div class="w-full flex flex-col gap-1">
+					<div class="flex gap-5">
+						<label for="name" class="ml-1 font-bold text-black text-base"> 日付指定 </label>
+						<span class="">🔽 タッチ!</span>
 					</div>
+					<input
+						bind:value={requiredData.selectedStringDate}
+						on:change={handleDate}
+						name="date"
+						required
+						type="date"
+						min={requiredData.minDate}
+						max={requiredData.maxDate}
+						class="shadow hover:border-slate-400 transition rounded-md bg-white border border-slate-300 focus:border-slate-900 w-full outline-none mt-1 p-3 text-base font-medium"
+					/>
 				</div>
 				<div class="w-full">
 					<button
